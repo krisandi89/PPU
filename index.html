@@ -76,7 +76,7 @@
                     <input type="text" id="project-applicant-location" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: Jakarta">
                 </div>
                 <div>
-                    <label for="project-date" class="block text-sm font-medium text-gray-600 mb-1">Tanggal Pengeluaran</label>
+                    <label for="project-date" class="block text-sm font-medium text-gray-600 mb-1">Tanggal pengeluaran uang</label>
                     <input type="text" id="project-date" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="dd/mm/yyyy">
                 </div>
                 <div>
@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <table class="w-full no-border-table">
                            <tr><td class="w-1/4 font-semibold">Proyek</td><td>: ${state.projectInfo.name || '-'}</td></tr>
                            <tr><td class="w-1/4 font-semibold">Lokasi</td><td>: ${state.projectInfo.location || '-'}</td></tr>
-                           <tr><td class="w-1/4 font-semibold">Tanggal</td><td>: ${formatDateForReport(state.projectInfo.projectDate) || '-'}</td></tr>
+                           <tr><td class="w-1/4 font-semibold">Tanggal Pengeluaran Uang</td><td>: ${formatDateForReport(state.projectInfo.projectDate) || '-'}</td></tr>
                            <tr><td class="w-1/4 font-semibold">Kegiatan</td><td>: ${state.projectInfo.activity || '-'}</td></tr>
                            <tr><td class="w-1/4 font-semibold">Personil</td><td>: ${state.projectInfo.personnel || '-'}</td></tr>
                         </table>
