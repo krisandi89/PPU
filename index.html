@@ -314,9 +314,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatToCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
     const formatForInputCurrency = (amount) => amount > 0 ? 'Rp ' + new Intl.NumberFormat('id-ID').format(amount) : '';
     
-    const formatDateForReport = (dateString, options = { day: '2-digit', month: 'short', year: 'numeric' }) => {
+    const formatDateForReport = (dateString, options = { day: '2-digit', month: 'long', year: 'numeric' }) => {
         if (!dateString) return '';
-        const [year, month, day] = dateString.split('-');
+        const parts = dateString.split('-');
+        if (parts.length !== 3) return '';
+        const [year, month, day] = parts.map(Number);
         const date = new Date(year, month - 1, day);
         return date.toLocaleDateString('id-ID', options);
     };
@@ -465,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let descriptionHtml = exp.description;
                 if (exp.category === 'Uang Supervisi' && exp.details?.holidayDetails?.length > 0) {
                     const holidayList = exp.details.holidayDetails.map(h => 
-                        `<li>${formatDateForReport(h.date, {day: 'numeric', month: 'short'})}: ${h.name}</li>`
+                        `<li>${formatDateForReport(h.date, {day: 'numeric', month: 'long'})}: ${h.name}</li>`
                     ).join('');
                     descriptionHtml += `<ul class="text-xs text-gray-500 mt-1 pl-4 list-disc">Ket. Libur:${holidayList}</ul>`;
                 }
@@ -555,14 +557,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Handlers ---
     Object.keys(projectInfoFields).forEach(key => {
         if(projectInfoFields[key]) {
-            projectInfoFields[key].addEventListener('blur', (e) => {
+            const handler = (e) => {
                 if (key === 'projectDate' || key === 'proposalDate') {
                     state.projectInfo[key] = parseDateFromInput(e.target.value) || '';
                 } else {
                     state.projectInfo[key] = e.target.value;
                 }
                 saveState();
-            });
+            };
+            projectInfoFields[key].addEventListener('blur', handler);
+            // Add change event for better mobile compatibility, especially for date pickers
+            if (key === 'projectDate' || key === 'proposalDate') {
+                projectInfoFields[key].addEventListener('change', handler);
+            }
         }
     });
 
@@ -634,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { // Standard Expense
             const description = standardDescription.value.trim();
             const amount = parseCurrency(standardAmount.value);
-            const date = parseDateFromInput(projectInfoFields.projectDate.value);
+            const date = state.projectInfo.projectDate; // Use global project date
             if (!date || !description || amount <= 0) { 
                 showModal('Input Tidak Lengkap', 'Mohon lengkapi "Tanggal pengeluaran uang" di Informasi Proyek, serta Keterangan dan Jumlah pada rincian.'); 
                 return; 
@@ -732,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (holidayDetails?.length > 0) {
                     const holidayList = holidayDetails.map(h => 
-                        `<li>${formatDateForReport(h.date, {day: 'numeric', month: 'short'})}: ${h.name}</li>`
+                        `<li>${formatDateForReport(h.date, {day: 'numeric', month: 'long'})}: ${h.name}</li>`
                     ).join('');
                     finalDescription += `<br/><div style="font-size: 10px; color: #555; padding-left: 10px;">Ket. Libur:<ul style="margin: 0; padding-left: 15px;">${holidayList}</ul></div>`;
                 }
@@ -750,7 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
 
         const proposalDateFormatted = state.projectInfo.proposalDate
-            ? formatDateForReport(state.projectInfo.proposalDate, { day: '2-digit', month: 'long', year: 'numeric' })
+            ? formatDateForReport(state.projectInfo.proposalDate)
             : new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
 
         const reportHTML = `
